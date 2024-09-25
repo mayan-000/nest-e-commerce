@@ -74,4 +74,23 @@ export class ProductsService {
   async remove(id: number): Promise<void> {
     await this.productRepository.delete(id);
   }
+
+  async updateInventory(
+    _orderId: number,
+    items: Array<{ productId: number; quantity: number }>,
+    type: string,
+  ): Promise<void> {
+    const shouldAddOrRemove = type === 'order_created' ? 1 : -1;
+
+    for (const item of items) {
+      const product = await this.productRepository.findOneBy({
+        id: item.productId,
+      });
+
+      if (product) {
+        product.stock -= item.quantity * shouldAddOrRemove;
+        await this.productRepository.save(product);
+      }
+    }
+  }
 }

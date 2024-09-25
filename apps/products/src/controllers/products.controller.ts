@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from '../services';
 import { Product } from '../entities/product.entity';
+import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller('products')
 export class ProductsController {
@@ -44,5 +45,21 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(id);
+  }
+
+  @EventPattern('update_inventory')
+  async handleUpdateInventory(
+    @Payload()
+    data: {
+      orderId: number;
+      items: Array<{ productId: number; quantity: number }>;
+      type: string;
+    },
+  ) {
+    await this.productsService.updateInventory(
+      data.orderId,
+      data.items,
+      data.type,
+    );
   }
 }
