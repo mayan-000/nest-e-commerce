@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ProductsController } from './products.controller';
-import { ProductsService } from './products.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthModule } from 'libs/auth/src/auth.module';
+import { AuthModule } from 'libs';
+import { CatalogModule, SearchModule } from './modules';
+import { ProductsService } from './services';
+import { ProductsController } from './controllers';
+import { Product } from './entities/product.entity';
+import { Catalog } from './entities';
 
 @Module({
   imports: [
@@ -18,9 +21,10 @@ import { AuthModule } from 'libs/auth/src/auth.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [],
+      entities: [Product, Catalog],
       synchronize: process.env.NODE_ENV === 'development',
     }),
+    TypeOrmModule.forFeature([Product, Catalog]),
     ClientsModule.register([
       {
         name: 'PRODUCTS_SERVICE',
@@ -35,6 +39,8 @@ import { AuthModule } from 'libs/auth/src/auth.module';
       },
     ]),
     AuthModule,
+    SearchModule,
+    CatalogModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],
