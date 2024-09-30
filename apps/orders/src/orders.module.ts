@@ -6,7 +6,11 @@ import { Order } from './entities/order.entity';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
-import { NotificationService, OrdersSchedulerService } from './services';
+import {
+  NotificationService,
+  OrdersSchedulerService,
+  PaymentService,
+} from './services';
 
 @Module({
   imports: [
@@ -40,6 +44,11 @@ import { NotificationService, OrdersSchedulerService } from './services';
     ScheduleModule.forRoot(),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, OrdersSchedulerService, NotificationService],
+  providers: [
+    OrdersService,
+    OrdersSchedulerService,
+    NotificationService,
+    PaymentService,
+  ],
 })
 export class OrdersModule {}

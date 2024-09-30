@@ -1,11 +1,14 @@
 import { Controller, Post, Put, Body, Param, Get, Query } from '@nestjs/common';
-import { OrdersService } from '../services';
+import { OrdersService, PaymentService } from '../services';
 import { Order } from '../entities';
 import { ReturnOrderDto, CreateOrderDto, UpdateOrderDto } from '../dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   @Post()
   createOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
@@ -61,5 +64,27 @@ export class OrdersController {
     @Param('id') id: number,
   ): Promise<{ deliveryStatus: string; currentAddress: string }> {
     return this.ordersService.getDeliveryStatus(id);
+  }
+
+  @Post(':id/payment')
+  async processPayment(
+    @Param('id') id: number,
+    @Body('amount') amount: number,
+  ): Promise<{ status: string; transactionId: string }> {
+    return this.paymentService.processPayment(id, amount);
+  }
+
+  @Post('refund')
+  async refundPayment(
+    @Body('transactionId') transactionId: string,
+  ): Promise<{ status: string }> {
+    return this.paymentService.refundPayment(transactionId);
+  }
+
+  @Get('payment-status/:transactionId')
+  async getPaymentStatus(
+    @Param('transactionId') transactionId: string,
+  ): Promise<{ status: string }> {
+    return this.paymentService.getPaymentStatus(transactionId);
   }
 }

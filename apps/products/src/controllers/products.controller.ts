@@ -62,4 +62,11 @@ export class ProductsController {
       data.type,
     );
   }
+
+  @EventPattern('find_product')
+  async handleFindProduct(@Payload() data: { id: number }) {
+    const result = await this.productsService.findOne(data.id);
+
+    return result;
+  }
 }

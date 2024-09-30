@@ -23,4 +23,6 @@ export class Product {
 
   @ManyToOne(() => Catalog, (catalog) => catalog.products, { nullable: true })
   catalog?: Catalog;
+
+  // product images, reviews, and other fields
 }
