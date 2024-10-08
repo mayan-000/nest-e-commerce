@@ -6,6 +6,7 @@ import { Order } from './entities/order.entity';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
+import { JwtAuthGuard } from 'libs';
 import {
   NotificationService,
   OrdersSchedulerService,
@@ -49,6 +50,7 @@ import {
     OrdersSchedulerService,
     NotificationService,
     PaymentService,
+    JwtAuthGuard,
   ],
 })
 export class OrdersModule {}

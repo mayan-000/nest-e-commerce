@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import {
   ClientProxy,
   ClientProxyFactory,
-  EventPattern,
   Transport,
 } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';

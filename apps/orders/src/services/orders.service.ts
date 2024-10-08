@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -68,8 +72,15 @@ export class OrdersService {
     }
   }
 
-  async getOrderById(id: number): Promise<Order> {
-    return this.orderRepository.findOneBy({ id });
+  async getOrderById(id: number, userId: number): Promise<Order> {
+    const order = await this.orderRepository.findOneBy({ id });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (order.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this order');
+    }
+    return order;
   }
 
   async listOrders(userId?: number): Promise<Order[]> {
@@ -79,8 +90,17 @@ export class OrdersService {
     return this.orderRepository.find();
   }
 
-  async cancelOrder(id: number): Promise<void> {
+  async cancelOrder(id: number, userId: number): Promise<void> {
     const order = await this.orderRepository.findOneBy({ id });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (order.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this order');
+    }
+
     if (order && order.status === 'processing') {
       order.status = 'canceled';
       await this.orderRepository.save(order);
@@ -101,8 +121,21 @@ export class OrdersService {
     }
   }
 
-  async returnOrder(id: number, returnOrderDto: ReturnOrderDto): Promise<void> {
+  async returnOrder(
+    id: number,
+    returnOrderDto: ReturnOrderDto,
+    userId?: number,
+  ): Promise<void> {
     const order = await this.orderRepository.findOneBy({ id });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (userId && order.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have access to return this order',
+      );
+    }
+
     if (order && order.status === 'delivered') {
       order.status = 'returned';
       await this.orderRepository.save({ ...order, ...returnOrderDto });
@@ -158,8 +191,14 @@ export class OrdersService {
 
   async getDeliveryStatus(
     id: number,
+    userId: number,
   ): Promise<{ deliveryStatus: string; currentAddress: string }> {
     const order = await this.orderRepository.findOneBy({ id });
+
+    if (order.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this order');
+    }
+
     return order
       ? {
           deliveryStatus: order.deliveryStatus,
