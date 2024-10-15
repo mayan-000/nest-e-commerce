@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
+//TODO: Need guards for routes that require authentication
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
